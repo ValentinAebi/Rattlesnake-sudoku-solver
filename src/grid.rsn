@@ -4,6 +4,7 @@ struct Cell {
   candidates: arr Int
 }
 
+// Deep copy of a cell
 fn copyCell(cell: Cell) -> Cell {
   return new Cell { cell.content, copyArray(cell.candidates) }
 }
@@ -13,6 +14,7 @@ struct Grid {
   cells: arr arr Cell
 }
 
+// Deep copy of a grid
 fn copyGrid(grid: Grid) -> Grid {
   checkGridFormat(grid);
   val newCellsArray = arr arr Cell[grid.size];
@@ -27,6 +29,7 @@ fn copyGrid(grid: Grid) -> Grid {
   return new Grid { grid.size, newCellsArray }
 }
 
+// Returns a string representation of the given grid
 fn gridToString(grid: Grid) -> String {
   checkGridFormat(grid);
   val sectorSize = sqrt(grid.size);
@@ -41,6 +44,7 @@ fn gridToString(grid: Grid) -> String {
   return res
 }
 
+// Panics if the grid is malformed
 fn checkGridFormat(grid: Grid){
   if !isPerfectSquare(grid.size){
     panic "grid size must be a perfect square";
@@ -55,6 +59,7 @@ fn checkGridFormat(grid: Grid){
   }
 }
 
+// Returns a horizontal line for a grid with the given sector size
 fn horizLine(sectorSize: Int) -> String {
   var res = "+-";
   for var s = 0; s < sectorSize; s += 1 {
@@ -66,24 +71,28 @@ fn horizLine(sectorSize: Int) -> String {
   return res;
 }
 
+// Returns the string representation of a row of a grid
 fn rowToString(row: arr Cell) -> String {
   val sectorSize = sqrt(#row);
-  var res = "+ ";
+  var res = "| ";
   for var s = 0; s < sectorSize; s += 1 {
     for var i = 0; i < sectorSize; i += 1 {
       res += numberRepr(row[s*sectorSize + i].content) + " ";
     };
-    res += "+";
+    res += "|";
   };
   return res;
 }
 
+// Returns the string that appears in the representation of the grid for the given number
 fn numberRepr(number: Int) -> String {
   if number == 0 {
+    // 0 means empty cell
     return " ";
   } else if number < 10 {
     return intToString(number)
   } else {
+    // 10 -> A, 11 -> B, 12 -> C, etc.
     val char = (('A' as Int) + number - 10) as Char;
     return charToString(char)
   }

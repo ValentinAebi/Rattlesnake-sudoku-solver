@@ -1,4 +1,5 @@
 
+// Returns a copy of the given integer array
 fn copyArray(array: arr Int) -> arr Int {
     val newArray = arr Int[#array];
     for var i = 0; i < #array; i += 1 {
@@ -7,6 +8,8 @@ fn copyArray(array: arr Int) -> arr Int {
     return newArray;
 }
 
+// Square root of an integer
+// Panics if i is not a perfect square
 fn sqrt(i: Int) -> Int {
     for var r = 0, var sq = 0; sq < i; r += 1 {
         sq = r*r;
