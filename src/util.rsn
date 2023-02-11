@@ -1,0 +1,28 @@
+
+fn copyArray(array: arr Int) -> arr Int {
+    val newArray = arr Int[#array];
+    for var i = 0; i < #array; i += 1 {
+        newArray[i] = array[i];
+    };
+    return newArray;
+}
+
+fn sqrt(i: Int) -> Int {
+    for var r = 0, var sq = 0; sq < i; r += 1 {
+        sq = r*r;
+        if sq == i {
+            return r;
+        };
+    };
+    panic "not a perfect square";
+}
+
+fn isPerfectSquare(i: Int) -> Bool {
+    for var r = 0, var sq = 0; sq < i; r += 1 {
+        sq = r*r;
+        if sq == i {
+            return true;
+        };
+    };
+    return false;
+}

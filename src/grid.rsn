@@ -1,0 +1,90 @@
+
+struct Cell {
+  content: Int,
+  candidates: arr Int
+}
+
+fn copyCell(cell: Cell) -> Cell {
+  return new Cell { cell.content, copyArray(cell.candidates) }
+}
+
+struct Grid {
+  size: Int,
+  cells: arr arr Cell
+}
+
+fn copyGrid(grid: Grid) -> Grid {
+  checkGridFormat(grid);
+  val newCellsArray = arr arr Cell[grid.size];
+  for var i = 0; i < grid.size; i += 1 {
+    val newRow = arr Cell[grid.size];
+    val oldRow = grid.cells[i];
+    for var j = 0; j < grid.size; j += 1 {
+      newRow[j] = oldRow[j];
+    };
+    newCellsArray[i] = newRow;
+  };
+  return new Grid { grid.size, newCellsArray }
+}
+
+fn gridToString(grid: Grid) -> String {
+  checkGridFormat(grid);
+  val sectorSize = sqrt(grid.size);
+  val horizLine = horizLine(sectorSize);
+  var res = horizLine + "\n";
+  for var s = 0; s < sectorSize; s += 1 {
+    for var i = 0; i < sectorSize; i += 1 {
+      res += rowToString(grid.cells[sectorSize*s + i]) + "\n";
+    };
+    res += horizLine + "\n";
+  };
+  return res
+}
+
+fn checkGridFormat(grid: Grid){
+  if !isPerfectSquare(grid.size){
+    panic "grid size must be a perfect square";
+  };
+  if #(grid.cells) != grid.size {
+    panic "wrong grid height"
+  };
+  for var r = 0; r < grid.size; r += 1 {
+    if #(grid.cells[r]) != grid.size {
+      panic "wrong grid height on row " + intToString(r);
+    }
+  }
+}
+
+fn horizLine(sectorSize: Int) -> String {
+  var res = "+-";
+  for var s = 0; s < sectorSize; s += 1 {
+    for var i = 0; i < sectorSize; i += 1 {
+      res += "--";
+    };
+    res += "+";
+  };
+  return res;
+}
+
+fn rowToString(row: arr Cell) -> String {
+  val sectorSize = sqrt(#row);
+  var res = "+ ";
+  for var s = 0; s < sectorSize; s += 1 {
+    for var i = 0; i < sectorSize; i += 1 {
+      res += numberRepr(row[s*sectorSize + i].content) + " ";
+    };
+    res += "+";
+  };
+  return res;
+}
+
+fn numberRepr(number: Int) -> String {
+  if number == 0 {
+    return " ";
+  } else if number < 10 {
+    return intToString(number)
+  } else {
+    val char = (('A' as Int) + number - 10) as Char;
+    return charToString(char)
+  }
+}

@@ -1,0 +1,21 @@
+
+fn main(args: arr String){
+    val cellsValues =
+        [
+            [11, 8, 0, 15],
+            [0, 5, 0, 0],
+            [3, 9, 0, 2],
+            [7, 1, 0, 0]
+        ];
+    val cells = arr arr Cell[#cellsValues];
+    for var i = 0; i < #cellsValues; i += 1 {
+        val row = arr Cell[#cellsValues];
+        for var j = 0; j < #cellsValues; j += 1 {
+            val value = cellsValues[i][j];
+            row[j] = new Cell { value, [value] };
+        };
+        cells[i] = row;
+    };
+    val grid = new Grid { 4, cells };
+    print(gridToString(grid))
+}
