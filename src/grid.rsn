@@ -140,6 +140,9 @@ fn horizLine(sectorSize: Int) -> String {
       res += "--";
     };
     res += "+";
+    if s < sectorSize - 1 {
+      res += "-";
+    };
   };
   return res;
 }
@@ -152,7 +155,7 @@ fn rowToString(row: arr Cell) -> String {
     for var i = 0; i < sectorSize; i += 1 {
       res += numberRepr(row[s*sectorSize + i].content) + " ";
     };
-    res += "|";
+    res += "| ";
   };
   return res;
 }
