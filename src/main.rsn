@@ -1,32 +1,70 @@
 
 fn main(args: arr String){
+
+    val a = 10;
+    val b = 11;
+    val c = 12;
+    val d = 13;
+    val e = 14;
+    val f = 15;
+    val g = 16;
+
     val grid = gridFromIntArray([
-        [0, 1, 6,  0, 8, 0,  5, 3, 0],
-        [0, 0, 4,  0, 0, 0,  0, 0, 0],
-        [0, 0, 0,  9, 0, 0,  0, 8, 0],
 
-        [4, 0, 0,  0, 1, 0,  0, 0, 0],
-        [9, 0, 0,  0, 0, 0,  3, 0, 0],
-        [0, 3, 1,  7, 0, 0,  0, 0, 6],
+        [0, 2, 0, f,  0, e, 1, 0,  0, c, 4, 0,  8, 0, 6, 0],
+        [6, 0, 7, 0,  0, 0, 0, 5,  e, 0, 0, 0,  0, d, 0, 4],
+        [0, d, 0, e,  0, 0, 0, 7,  6, 0, 0, 0,  1, 0, 2, 0],
+        [4, 0, c, 1,  0, g, 6, 0,  0, 7, 2, 0,  9, b, 0, e],
 
-        [0, 0, 0,  0, 0, 2,  0, 0, 7],
-        [3, 0, 0,  0, 0, 0,  0, 0, 0],
-        [0, 5, 8,  0, 9, 0,  6, 0, 0]
+        [0, 0, 0, 0,  0, f, 0, 0,  0, 0, e, 0,  0, 0, 0, 0],
+        [8, 0, 0, b,  7, c, 2, 0,  0, d, 6, 4,  3, 0, 0, a],
+        [5, 0, 0, 7,  0, 3, b, 8,  1, f, 9, 0,  g, 0, 0, 2],
+        [0, g, 4, 0,  0, 0, d, 0,  0, b, 0, 0,  0, 8, 1, 0],
+
+        [0, 9, a, 0,  0, 0, 7, 0,  0, 2, 0, 0,  0, 3, 5, 0],
+        [2, 0, 0, 5,  0, a, 8, c,  4, 9, 3, 0,  6, 0, 0, d],
+        [1, 0, 0, g,  9, 2, 4, 0,  0, 6, 7, e,  a, 0, 0, 8],
+        [0, 0, 0, 0,  0, 5, 0, 0,  0, 0, g, 0,  0, 0, 0, 0],
+
+        [b, 0, g, 4,  0, d, a, 0,  0, 5, c, 0,  7, 9, 0, 1],
+        [0, 5, 0, a,  0, 0, 0, g,  8, 0, 0, 0,  d, 0, e, 0],
+        [c, 0, 6, 0,  0, 0, 0, 2,  a, 0, 0, 0,  0, g, 0, f],
+        [0, e, 0, 2,  0, b, f, 0,  0, g, 1, 0,  5, 0, 3, 0]
+        
     ]);
+
+    val gridCheckLog = checkGrid(grid);
+    displayErrorsIfAny(gridCheckLog);
+    if gridCheckLog.errorFound {
+        panic "error(s) found in grid to be filled"
+    };
+
+    print("\n\n");
     print(gridToString(grid));
-    printSep();
+    print("\n\n========= Solutions =======================================\n\n");
+
     val sols = solve(grid);
+    var errorsCnt = 0;
     for var i = 0; i < #sols; i += 1 {
-        printSep();
+        val errorLog = checkGrid(sols[i]);
+        print("Solution " + intToString(i + 1) + "\n");
         print(gridToString(sols[i]));
-    }
+        print(logToString(errorLog));
+        print("\n");
+        if errorLog.errorFound {
+            errorsCnt += 1;
+        };
+    };
+    print("\n" + intToString(#sols) + " solution(s) found\n");
+    if errorsCnt == 0 {
+        print("All solutions verified successfully\n");
+    } else {
+        print("Warning! Errors found in solutions\n")
+    };
 }
 
-fn printSep(){
-    val lineLength = 40;
-    var line = "";
-    for var i = 0; i < lineLength; i += 1 {
-        line += "-";
-    };
-    print("\n\n" + line + "\n\n");
+fn displayErrorsIfAny(log: ErrorLog){
+    if log.errorFound {
+        print(log.text)
+    }
 }
