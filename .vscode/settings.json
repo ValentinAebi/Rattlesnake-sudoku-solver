@@ -1,0 +1,95 @@
+
+// uses the Highlight VS Code extension (https://github.com/fabiospampinato/vscode-highlight)
+
+{
+    "highlight.regexes": {
+        "(//)(.*)": [
+            {"color": "grey"},
+            {"color": "grey"}
+        ],
+        "(\\bval\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bvar\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bif\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\belse\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bwhen\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bthen\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bwhile\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bfor\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bfn\\b)": [
+            {"color": "lightskyblue"},
+            {"color": "orange"}
+        ],
+        "(\\breturn\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bstruct\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\barr\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bnew\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bas\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\bpanic\\b)": [
+            {"color": "lightskyblue"}
+        ],
+        "(\\btrue\\b)": [
+            {"color": "aqua"}
+        ],
+        "(\\bfalse\\b)": [
+            {"color": "aqua"}
+        ],
+        "(\\b[A-Z][A-Z|a-z|0-9]*)\\b": [
+            {"color": "lightsalmon"}
+        ],
+        "(\\w*)\\([^\\)]*\\)": [
+            {"color": "aquamarine"}
+        ],
+        "(\"[^\"]*\")": [
+            {"color": "burlywood"}
+        ],
+        "(\\()": [
+            {"color": "yellow"}
+        ],
+        "(\\))": [
+            {"color": "yellow"}
+        ],
+        "(\\[)": [
+            {"color": "yellow"}
+        ],
+        "(\\])": [
+            {"color": "yellow"}
+        ],
+        "(\\{)": [
+            {"color": "yellow"}
+        ],
+        "(\\})": [
+            {"color": "yellow"}
+        ],
+        "(->)": [
+            {"color": "yellow"}
+        ],
+      },
+      "highlight.regexFlags": "g",
+      "files.autoSave": "onFocusChange"
+}
