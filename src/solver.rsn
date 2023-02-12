@@ -2,25 +2,18 @@
 fn solve(grid: Grid) -> arr Grid {
     val unsatCell = !inferenceSolve(grid);
     if unsatCell {
-        log("unsat found");
         return arr Grid[0];
     } else if isComplete(grid){
-        log("solution found");
         return [grid]
     } else {
-        log("going to guess");
         val guessCellPos = cellWithLeastCandidates(grid);
         assert(coordsNonNeg(guessCellPos), "negative coordinate");
         val guessCell = cellAt(grid, guessCellPos);
         val packedCandidates = packedCandidates(guessCell.candidates);
         val solsPerGuess = arr arr Grid[#packedCandidates];
-        log(candidatesToString(grid));
-        log("guessing on cell " + cellPosToString(guessCellPos) + ": " + intToString(#packedCandidates) + " candidates");
         for var i = 0; i < #packedCandidates; i += 1 {
             val copy = copyGrid(grid);
             cellAt(copy, guessCellPos).content = packedCandidates[i];
-            log("set candidate " + intToString(packedCandidates[i]));
-            log(gridToString(copy));
             solsPerGuess[i] = solve(copy);
         };
         return flattenSolsArray(solsPerGuess);
@@ -31,7 +24,6 @@ fn solve(grid: Grid) -> arr Grid {
 // Returns false if at least 1 cell has no candidate left, true otherwise
 fn inferenceSolve(grid: Grid) -> Bool {
     while nullifyImpossibleCandidates(grid){
-        log(intToString(emptyCellsCnt(grid)) + " empty cells");
         val unsatCell = !inferOneUniqueCandidate(grid);
         if unsatCell {
             return false
