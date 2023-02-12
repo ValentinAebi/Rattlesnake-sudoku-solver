@@ -1,0 +1,85 @@
+
+struct ErrorLog {
+    text: String,
+    errorFound: Bool
+}
+
+fn logToString(log: ErrorLog) -> String {
+    if log.errorFound {
+        return "Error(s) found:\n" + log.text;
+    } else {
+        return "No error found\n"
+    }
+}
+
+fn writeError(log: ErrorLog, msg: String){
+    log.text += msg + "\n";
+    log.errorFound = true;
+}
+
+fn checkGrid(grid: Grid) -> ErrorLog {
+    val log = new ErrorLog { "", false };
+    for var i = 0; i < grid.size; i += 1 {
+        checkRow(grid, i, log);
+    };
+    for var i = 0; i < grid.size; i += 1 {
+        checkCol(grid, i, log);
+    };
+    val nSectors = sqrt(grid.size);
+    for var i = 0; i < nSectors; i += 1 {
+        for var j = 0; j < nSectors; j += 1 {
+            checkSector(grid, i, j, log);
+        }
+    };
+    return log
+}
+
+fn checkRow(grid: Grid, rowIdx: Int, log: ErrorLog){
+    val found = arr Bool[grid.size];
+    val row = grid.cells[rowIdx];
+    for var i = 0; i < grid.size; i += 1 {
+        val currVal = row[i].content;
+        if currVal > 0 {
+            if found[currVal-1] {
+                writeError(log, "duplicated " + numberRepr(currVal) + " in row " + intToString(rowIdx));
+            } else {
+                found[currVal-1] = true;
+            }
+        }
+    };
+}
+
+fn checkCol(grid: Grid, colIdx: Int, log: ErrorLog){
+    val found = arr Bool[grid.size];
+    for var i = 0; i < grid.size; i += 1 {
+        val currVal = grid.cells[i][colIdx].content;
+        if currVal > 0 {
+            if found[currVal-1]{
+                writeError(log, "duplicated " + numberRepr(currVal) + " in col " + intToString(i));
+            } else {
+                found[currVal-1] = true;
+            }
+        }
+    };
+}
+
+fn checkSector(grid: Grid, sectorRowIdx: Int, sectorColIdx: Int, log: ErrorLog){
+    val sectorSize = sqrt(grid.size);
+    val found = arr Bool[grid.size];
+    val minRow = sectorRowIdx * sectorSize;
+    val minCol = sectorColIdx * sectorSize;
+    for var r = minRow; r < minRow + sectorSize; r += 1 {
+        for var c = minCol; c < minCol + sectorSize; c += 1 {
+            val currVal = grid.cells[r][c].content;
+            if currVal > 0 {
+                if found[currVal-1]{
+                    writeError(log, "duplicated " + numberRepr(currVal)
+                        + " in sector (" + intToString(sectorRowIdx) + "," + intToString(sectorColIdx) + ")");
+                } else {
+                    found[currVal-1] = false;
+                }
+            }
+        }
+    };
+}
+
