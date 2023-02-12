@@ -1,0 +1,207 @@
+
+fn solve(grid: Grid) -> arr Grid {
+    val unsatCell = !inferenceSolve(grid);
+    if unsatCell {
+        log("unsat found");
+        return arr Grid[0];
+    } else if isComplete(grid){
+        log("solution found");
+        return [grid]
+    } else {
+        log("going to guess");
+        val guessCellPos = cellWithLeastCandidates(grid);
+        assert(coordsNonNeg(guessCellPos), "negative coordinate");
+        val guessCell = cellAt(grid, guessCellPos);
+        val packedCandidates = packedCandidates(guessCell.candidates);
+        val solsPerGuess = arr arr Grid[#packedCandidates];
+        log(candidatesToString(grid));
+        log("guessing on cell " + cellPosToString(guessCellPos) + ": " + intToString(#packedCandidates) + " candidates");
+        for var i = 0; i < #packedCandidates; i += 1 {
+            val copy = copyGrid(grid);
+            cellAt(copy, guessCellPos).content = packedCandidates[i];
+            log("set candidate " + intToString(packedCandidates[i]));
+            log(gridToString(copy));
+            solsPerGuess[i] = solve(copy);
+        };
+        return flattenSolsArray(solsPerGuess);
+    }
+}
+
+// Fills the cells that can be inferred without guessing
+// Returns false if at least 1 cell has no candidate left, true otherwise
+fn inferenceSolve(grid: Grid) -> Bool {
+    while nullifyImpossibleCandidates(grid){
+        log(intToString(emptyCellsCnt(grid)) + " empty cells");
+        val unsatCell = !inferUniqueCandidates(grid);
+        if unsatCell {
+            return false
+        };
+    };
+    return true
+}
+
+fn nullifyImpossibleCandidates(grid: Grid) -> Bool {
+    var modified = false;
+    for var r = 0; r < grid.size; r += 1 {
+        for var c = 0; c < grid.size; c += 1 {
+            if grid.cells[r][c].content == 0 {
+                modified = nullifyCandidatesInRow(grid, r, c) || modified;
+                modified = nullifyCandidatesInCol(grid, r, c) || modified;
+                modified = nullifyCandidatesInSector(grid, r, c) || modified;
+            }
+        }
+    };
+    return modified;
+}
+
+// For each cell that contains a single candidate, infers the content of the cell
+// Returns false (and stops early) if one of the cells has no candidate left, true otherwise
+fn inferUniqueCandidates(grid: Grid) -> Bool {
+    for var r = 0; r < grid.size; r += 1 {
+        for var c = 0; c < grid.size; c += 1 {
+            val cell = grid.cells[r][c];
+            if cell.content == 0 {
+                val uc = uniqueCandidate(cell.candidates);
+                if uc == -1 {
+                    return false
+                } else if uc > 0 {
+                    cell.content = uc;
+                }
+            }
+        }
+    };
+    return true
+}
+
+fn nullifyCandidatesInRow(grid: Grid, row: Int, col: Int) -> Bool {
+    val cell = grid.cells[row][col];
+    var modified = false;
+    for var i = 0; i < grid.size; i += 1 {
+        if i != col {
+            val candidateToNullify = grid.cells[row][i].content;
+            if candidateToNullify != 0 {
+                modified = nullifyCandidate(cell.candidates, candidateToNullify) || modified;
+            }
+        }
+    };
+    return modified
+}
+
+fn nullifyCandidatesInCol(grid: Grid, row: Int, col: Int) -> Bool {
+    val cell = grid.cells[row][col];
+    var modified = false;
+    for var i = 0; i < grid.size; i += 1 {
+        if i != row {
+            val candidateToNullify = grid.cells[i][col].content;
+            if candidateToNullify != 0 {
+                modified = nullifyCandidate(cell.candidates, candidateToNullify) || modified;
+            }
+        }
+    };
+    return modified
+}
+
+fn nullifyCandidatesInSector(grid: Grid, row: Int, col: Int) -> Bool {
+    val cell = grid.cells[row][col];
+    val sectorSize = sqrt(grid.size);
+    val minRow = row / sectorSize * sectorSize;
+    val minCol = col / sectorSize * sectorSize;
+    var modified = false;
+    for var r = minRow; r < minRow + sectorSize; r += 1 {
+        for var c = minCol; c < minCol + sectorSize; c += 1 {
+            if !(r == row && c == col){
+                val candidateToNullify = grid.cells[r][c].content;
+                if candidateToNullify != 0 {
+                    modified = nullifyCandidate(cell.candidates, candidateToNullify) || modified;
+                }
+            }
+        }
+    };
+    return modified
+}
+
+// Replaces all occurrences of candidateToNullify in candidates with 0
+fn nullifyCandidate(candidates: arr Int, candidateToNullify: Int) -> Bool {
+    require(candidateToNullify > 0, "candidate to nullify must be positive, was " + intToString(candidateToNullify));
+    var modified = false;
+    for var i = 0; i < #candidates; i += 1 {
+        if candidates[i] == candidateToNullify {
+            candidates[i] = 0;
+            modified = true;
+        }
+    };
+    return modified
+}
+
+// Returns the unique candidate if there is exactly 1 candidate
+// If there are more than 1 candidate, returns 0
+// If there is no candidate, returns -1
+fn uniqueCandidate(candidates: arr Int) -> Int {
+    var unique = -1;
+    for var i = 0; i < #candidates; i += 1 {
+        if candidates[i] != 0 {
+            if unique == -1 {
+                unique = candidates[i];
+            } else {
+                return 0;
+            }
+        }
+    };
+    return unique;
+}
+
+fn cellWithLeastCandidates(grid: Grid) -> CellPos {
+    var bestCellPos = new CellPos { -1, -1 };
+    var bestNumCandidates = grid.size;
+    for var r = 0; r < grid.size; r += 1 {
+        for var c = 0; c < grid.size; c += 1 {
+            val currCell = grid.cells[r][c];
+            if currCell.content == 0 {
+                val currNumCandidates = numCandidates(currCell.candidates);
+                if currNumCandidates < bestNumCandidates {
+                    bestCellPos = new CellPos { r, c };
+                    bestNumCandidates = currNumCandidates
+                }
+            };
+        }
+    };
+    return bestCellPos
+}
+
+fn numCandidates(candidates: arr Int) -> Int {
+    var cnt = 0;
+    for var i = 0; i < #candidates; i += 1 {
+        if candidates[i] > 0 {
+            cnt += 1;
+        }
+    };
+    return cnt
+}
+
+fn packedCandidates(candidates: arr Int) -> arr Int {
+    val nCandidates = numCandidates(candidates);
+    val packed = arr Int[nCandidates];
+    for var rci = 0, var pci = 0; rci < #candidates; rci += 1 {
+        if candidates[rci] > 0 {
+            packed[pci] = candidates[rci];
+            pci += 1;
+        }
+    };
+    return packed
+}
+
+fn flattenSolsArray(sols: arr arr Grid) -> arr Grid {
+    var nSols = 0;
+    for var i = 0; i < #sols; i += 1 {
+        nSols += #sols[i];
+    };
+    val flat = arr Grid[nSols];
+    var flatIdx = 0;
+    for var i = 0; i < #sols; i += 1 {
+        for var j = 0; j < #sols[i]; j += 1 {
+            flat[flatIdx] = sols[i][j];
+            flatIdx += 1;
+        }
+    };
+    return flat;
+}

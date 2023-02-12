@@ -2,10 +2,15 @@
 // Returns a copy of the given integer array
 fn copyArray(array: arr Int) -> arr Int {
     val newArray = arr Int[#array];
-    for var i = 0; i < #array; i += 1 {
-        newArray[i] = array[i];
-    };
+    copyArrayInto(array, newArray);
     return newArray;
+}
+
+fn copyArrayInto(origin: arr Int, dest: arr Int){
+    require(#origin == #dest, "array sizes differ");
+    for var i = 0; i < #origin; i += 1 {
+        dest[i] = origin[i];
+    };
 }
 
 // Square root of an integer
@@ -28,4 +33,26 @@ fn isPerfectSquare(i: Int) -> Bool {
         };
     };
     return false;
+}
+
+// Returns an array containing the numbers in the requested range
+// e.g. rangeArray(10, 14) == [10, 11, 12, 13, 14]
+fn rangeArray(from: Int, to: Int) -> arr Int {
+    val res = arr Int[to-from+1];
+    for var i = from; i <= to; i += 1 {
+        res[i-from] = i;
+    };
+    return res;
+}
+
+fn require(cond: Bool, msg: String){
+    if !cond {
+        panic msg
+    }
+}
+
+fn assert(cond: Bool, msg: String){
+    if !cond {
+        panic msg
+    }
 }

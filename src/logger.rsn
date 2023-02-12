@@ -1,0 +1,4 @@
+
+fn log(msg: String){
+    //print(msg + "\n")
+}

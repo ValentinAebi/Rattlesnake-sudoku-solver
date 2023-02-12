@@ -1,21 +1,32 @@
 
 fn main(args: arr String){
-    val cellsValues =
-        [
-            [11, 8, 0, 15],
-            [0, 5, 0, 0],
-            [3, 9, 0, 2],
-            [7, 1, 0, 0]
-        ];
-    val cells = arr arr Cell[#cellsValues];
-    for var i = 0; i < #cellsValues; i += 1 {
-        val row = arr Cell[#cellsValues];
-        for var j = 0; j < #cellsValues; j += 1 {
-            val value = cellsValues[i][j];
-            row[j] = new Cell { value, [value] };
-        };
-        cells[i] = row;
+    val grid = gridFromIntArray([
+        [0, 1, 6,  0, 8, 0,  5, 3, 0],
+        [0, 0, 4,  0, 0, 0,  0, 0, 0],
+        [0, 0, 0,  9, 0, 0,  0, 8, 0],
+
+        [4, 0, 0,  0, 1, 0,  0, 0, 0],
+        [9, 0, 0,  0, 0, 0,  3, 0, 0],
+        [0, 3, 1,  7, 0, 0,  0, 0, 6],
+
+        [0, 0, 0,  0, 0, 2,  0, 0, 7],
+        [3, 0, 0,  0, 0, 0,  0, 0, 0],
+        [0, 5, 8,  0, 9, 0,  6, 0, 0]
+    ]);
+    print(gridToString(grid));
+    printSep();
+    val sols = solve(grid);
+    for var i = 0; i < #sols; i += 1 {
+        printSep();
+        print(gridToString(sols[i]));
+    }
+}
+
+fn printSep(){
+    val lineLength = 40;
+    var line = "";
+    for var i = 0; i < lineLength; i += 1 {
+        line += "-";
     };
-    val grid = new Grid { 4, cells };
-    print(gridToString(grid))
+    print("\n\n" + line + "\n\n");
 }

@@ -9,9 +9,32 @@ fn copyCell(cell: Cell) -> Cell {
   return new Cell { cell.content, copyArray(cell.candidates) }
 }
 
+fn copyCellInto(origin: Cell, dest: Cell){
+  require(#origin.candidates == #dest.candidates, "cell candidates counts differ");
+  dest.content = origin.content;
+  copyArrayInto(origin.candidates, dest.candidates);
+}
+
+struct CellPos {
+  row: Int,
+  col: Int
+}
+
+fn cellPosToString(pos: CellPos) -> String {
+  return "(" + intToString(pos.row) + "," + intToString(pos.col) + ")" 
+}
+
+fn coordsNonNeg(pos: CellPos) -> Bool {
+  return pos.row >= 0 && pos.col >= 0;
+}
+
 struct Grid {
   size: Int,
   cells: arr arr Cell
+}
+
+fn cellAt(grid: Grid, pos: CellPos) -> Cell {
+  return grid.cells[pos.row][pos.col];
 }
 
 // Deep copy of a grid
@@ -22,11 +45,24 @@ fn copyGrid(grid: Grid) -> Grid {
     val newRow = arr Cell[grid.size];
     val oldRow = grid.cells[i];
     for var j = 0; j < grid.size; j += 1 {
-      newRow[j] = oldRow[j];
+      newRow[j] = copyCell(oldRow[j]);
     };
     newCellsArray[i] = newRow;
   };
   return new Grid { grid.size, newCellsArray }
+}
+
+fn copyGridInto(origin: Grid, dest: Grid){
+  checkGridFormat(origin);
+  checkGridFormat(dest);
+  require(origin.size == dest.size, "grid sizes differ");
+  for var r = 0; r < origin.size; r += 1 {
+    for var c = 0; c < origin.size; c += 1 {
+      val destCell = dest.cells[r][c];
+      val originCell = origin.cells[r][c];
+      copyCellInto(originCell, destCell);
+    }
+  }
 }
 
 // Returns a string representation of the given grid
@@ -42,6 +78,43 @@ fn gridToString(grid: Grid) -> String {
     res += horizLine + "\n";
   };
   return res
+}
+
+fn gridFromIntArray(cellsValues: arr arr Int) -> Grid {
+  val size = #cellsValues;
+  val cells = arr arr Cell[size];
+  val grid = new Grid { size, cells };
+  for var r = 0; r < size; r += 1 {
+    require(#cellsValues[r] == size, "given array is not square");
+    cells[r] = arr Cell[size];
+    for var c = 0; c < size; c += 1 {
+      cells[r][c] = new Cell { cellsValues[r][c], rangeArray(1, size) };
+    }
+  };
+  return grid
+}
+
+fn isComplete(grid: Grid) -> Bool {
+  for var r = 0; r < grid.size; r += 1 {
+    for var c = 0; c < grid.size; c += 1 {
+      if grid.cells[r][c].content == 0 {
+        return false
+      }
+    }
+  };
+  return true
+}
+
+fn emptyCellsCnt(grid: Grid) -> Int {
+  var cnt = 0;
+  for var r = 0; r < grid.size; r += 1 {
+    for var c = 0; c < grid.size; c += 1 {
+      if grid.cells[r][c].content == 0 {
+        cnt += 1
+      }
+    }
+  };
+  return cnt
 }
 
 // Panics if the grid is malformed
@@ -96,4 +169,26 @@ fn numberRepr(number: Int) -> String {
     val char = (('A' as Int) + number - 10) as Char;
     return charToString(char)
   }
+}
+
+fn candidatesToString(grid: Grid) -> String {
+  var res = "";
+  for var r = 0; r < grid.size; r += 1 {
+    for var c = 0; c < grid.size; c += 1 {
+      if grid.cells[r][c].content == 0 {
+        res += "(" + intToString(r) + "," + intToString(c) + "): ";
+        val candidates = grid.cells[r][c].candidates;
+        for var i = 0; i < #candidates; i += 1 {
+          if candidates[i] != 0 {
+            res += intToString(candidates[i]);
+            if i < #candidates - 1 {
+              res += ",";
+            }
+          }
+        };
+        res += "\n";
+      }
+    }
+  };
+  return res;
 }
