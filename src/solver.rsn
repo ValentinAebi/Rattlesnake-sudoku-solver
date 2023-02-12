@@ -32,7 +32,7 @@ fn solve(grid: Grid) -> arr Grid {
 fn inferenceSolve(grid: Grid) -> Bool {
     while nullifyImpossibleCandidates(grid){
         log(intToString(emptyCellsCnt(grid)) + " empty cells");
-        val unsatCell = !inferUniqueCandidates(grid);
+        val unsatCell = !inferOneUniqueCandidate(grid);
         if unsatCell {
             return false
         };
@@ -54,9 +54,11 @@ fn nullifyImpossibleCandidates(grid: Grid) -> Bool {
     return modified;
 }
 
-// For each cell that contains a single candidate, infers the content of the cell
-// Returns false (and stops early) if one of the cells has no candidate left, true otherwise
-fn inferUniqueCandidates(grid: Grid) -> Bool {
+// Iterates the cells until one of the following happens:
+//   - A cell is found that has no candidate left -> return false
+//   - A cell is found that has exactly one candidate left -> assign this candidate as the cell value and return true
+//   - All the cells have been considered -> return true
+fn inferOneUniqueCandidate(grid: Grid) -> Bool {
     for var r = 0; r < grid.size; r += 1 {
         for var c = 0; c < grid.size; c += 1 {
             val cell = grid.cells[r][c];
@@ -66,6 +68,7 @@ fn inferUniqueCandidates(grid: Grid) -> Bool {
                     return false
                 } else if uc > 0 {
                     cell.content = uc;
+                    return true
                 }
             }
         }
