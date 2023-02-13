@@ -1,0 +1,40 @@
+
+test grid4x4Test {
+    val grid = gridFromIntArray([
+
+        [0, 0,   0, 4],
+        [4, 0,   2, 0],
+
+        [0, 1,   0, 0],
+        [3, 0,   0, 0]
+    ]);
+    val sols = solve(grid);
+    assertEquals(1, #sols, "solutions count error");
+    val exp = [
+
+        [1, 2,   3, 4],
+        [4, 3,   2, 1],
+
+        [2, 1,   4, 3],
+        [3, 4,   1, 2]
+    ];
+    assertGridEquals(exp, sols[0]);
+}
+
+fn assertEquals(exp: Int, act: Int, msg: String){
+    if exp != act {
+        panic msg
+    }
+}
+
+fn assertGridEquals(exp: arr arr Int, act: Grid){
+    checkGridFormat(act);
+    assertEquals(#exp, act.size, "grid size mismatch");
+    val size = act.size;
+    for var r = 0; r < size; r += 1 {
+        for var c = 0; c < size; c += 1 {
+            val pos = new CellPos { r, c };
+            assertEquals(exp[r][c], cellAt(act, pos).content, "mismatch at " + cellPosToString(pos));
+        }
+    }
+}
