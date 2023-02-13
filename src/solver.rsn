@@ -23,13 +23,17 @@ fn solve(grid: Grid) -> arr Grid {
 // Fills the cells that can be inferred without guessing
 // Returns false if at least 1 cell has no candidate left, true otherwise
 fn inferenceSolve(grid: Grid) -> Bool {
-    while nullifyImpossibleCandidates(grid){
-        val unsatCell = !inferOneUniqueCandidate(grid);
-        if unsatCell {
+    val initEmptiesCnt = emptyCellsCnt(grid);
+    while true {
+        nullifyImpossibleCandidates(grid);
+        val uniqueInferRet = inferOneUniqueCandidate(grid);
+        if uniqueInferRet == -1 {
             return false
-        };
+        } else if uniqueInferRet == 0 {
+            return true
+        }
     };
-    return true
+    panic "cannot happen"
 }
 
 fn nullifyImpossibleCandidates(grid: Grid) -> Bool {
@@ -47,25 +51,25 @@ fn nullifyImpossibleCandidates(grid: Grid) -> Bool {
 }
 
 // Iterates the cells until one of the following happens:
-//   - A cell is found that has no candidate left -> return false
-//   - A cell is found that has exactly one candidate left -> assign this candidate as the cell value and return true
-//   - All the cells have been considered -> return true
-fn inferOneUniqueCandidate(grid: Grid) -> Bool {
+//   - A cell is found that has no candidate left -> return -1
+//   - A cell is found that has exactly one candidate left -> assign this candidate as the cell value and return 1
+//   - All the cells have been considered -> return 0
+fn inferOneUniqueCandidate(grid: Grid) -> Int {
     for var r = 0; r < grid.size; r += 1 {
         for var c = 0; c < grid.size; c += 1 {
             val cell = grid.cells[r][c];
             if cell.content == 0 {
                 val uc = uniqueCandidate(cell.candidates);
                 if uc == -1 {
-                    return false
+                    return -1
                 } else if uc > 0 {
                     cell.content = uc;
-                    return true
+                    return 1
                 }
             }
         }
     };
-    return true
+    return 0
 }
 
 fn nullifyCandidatesInRow(grid: Grid, row: Int, col: Int) -> Bool {
