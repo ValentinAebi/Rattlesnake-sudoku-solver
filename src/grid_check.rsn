@@ -76,7 +76,7 @@ fn checkSector(grid: Grid, sectorRowIdx: Int, sectorColIdx: Int, log: ErrorLog){
                     writeError(log, "duplicated " + numberRepr(currVal)
                         + " in sector (" + intToString(sectorRowIdx) + "," + intToString(sectorColIdx) + ")");
                 } else {
-                    found[currVal-1] = false;
+                    found[currVal-1] = true;
                 }
             }
         }
