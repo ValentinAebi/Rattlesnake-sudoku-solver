@@ -1,4 +1,6 @@
 
+const c_EMPTY_CELL = 0;
+
 struct Cell {
   content: Int,
   candidates: arr Int
@@ -97,7 +99,7 @@ fn gridFromIntArray(cellsValues: arr arr Int) -> Grid {
 fn isComplete(grid: Grid) -> Bool {
   for var r = 0; r < grid.size; r += 1 {
     for var c = 0; c < grid.size; c += 1 {
-      if grid.cells[r][c].content == 0 {
+      if grid.cells[r][c].content == c_EMPTY_CELL {
         return false
       }
     }
@@ -109,7 +111,7 @@ fn emptyCellsCnt(grid: Grid) -> Int {
   var cnt = 0;
   for var r = 0; r < grid.size; r += 1 {
     for var c = 0; c < grid.size; c += 1 {
-      if grid.cells[r][c].content == 0 {
+      if grid.cells[r][c].content == c_EMPTY_CELL {
         cnt += 1
       }
     }
@@ -162,8 +164,7 @@ fn rowToString(row: arr Cell) -> String {
 
 // Returns the string that appears in the representation of the grid for the given number
 fn numberRepr(number: Int) -> String {
-  if number == 0 {
-    // 0 means empty cell
+  if number == c_EMPTY_CELL {
     return " ";
   } else if number < 10 {
     return intToString(number)
@@ -178,7 +179,7 @@ fn candidatesToString(grid: Grid) -> String {
   var res = "";
   for var r = 0; r < grid.size; r += 1 {
     for var c = 0; c < grid.size; c += 1 {
-      if grid.cells[r][c].content == 0 {
+      if grid.cells[r][c].content == c_EMPTY_CELL {
         res += "(" + intToString(r) + "," + intToString(c) + "): ";
         val candidates = grid.cells[r][c].candidates;
         for var i = 0; i < #candidates; i += 1 {

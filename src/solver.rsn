@@ -20,6 +20,10 @@ fn solve(grid: Grid) -> arr Grid {
     }
 }
 
+const r_UNSAT = -10;
+const r_UNCHANGED = -9;
+const r_UPDATED = -8;
+
 // Fills the cells that can be inferred without guessing
 // Returns false if at least 1 cell has no candidate left,
 // or at least 1 region has no possible position for some number,
@@ -29,15 +33,15 @@ fn inferenceSolve(grid: Grid) -> Bool {
     while true {
         nullifyImpossibleCandidates(grid);
         val uniquePosInferRet = inferOneNumberWithUniquePos(grid);
-        if uniquePosInferRet == -1 {
+        if uniquePosInferRet == r_UNSAT {
             return false
-        } else if uniquePosInferRet == 2 {
+        } else if uniquePosInferRet == r_UPDATED {
             nullifyImpossibleCandidates(grid);
         };
         val uniqueInferRet = inferOneUniqueCandidate(grid);
-        if uniqueInferRet == -1 {
+        if uniqueInferRet == r_UNSAT {
             return false
-        } else if uniqueInferRet == 0 {
+        } else if uniqueInferRet == r_UNCHANGED {
             return true
         };
     };
@@ -48,7 +52,7 @@ fn nullifyImpossibleCandidates(grid: Grid) -> Bool {
     var modified = false;
     for var r = 0; r < grid.size; r += 1 {
         for var c = 0; c < grid.size; c += 1 {
-            if grid.cells[r][c].content == 0 {
+            if grid.cells[r][c].content == c_EMPTY_CELL {
                 modified = nullifyCandidatesInRow(grid, r, c) || modified;
                 modified = nullifyCandidatesInCol(grid, r, c) || modified;
                 modified = nullifyCandidatesInSector(grid, r, c) || modified;
@@ -59,38 +63,38 @@ fn nullifyImpossibleCandidates(grid: Grid) -> Bool {
 }
 
 // Iterates the cells until one of the following happens:
-//   - A cell is found that has no candidate left -> return -1
-//   - A cell is found that has exactly one candidate left -> assign this candidate as the cell value and return 1
-//   - All the cells have been considered -> return 0
+//   - A cell is found that has no candidate left -> return r_UNSAT
+//   - A cell is found that has exactly one candidate left -> assign this candidate as the cell value and return r_UPDATED
+//   - All the cells have been considered -> return r_UNCHANGED
 fn inferOneUniqueCandidate(grid: Grid) -> Int {
     for var r = 0; r < grid.size; r += 1 {
         for var c = 0; c < grid.size; c += 1 {
             val cell = grid.cells[r][c];
-            if cell.content == 0 {
+            if cell.content == c_EMPTY_CELL {
                 val uc = uniqueCandidate(cell.candidates);
                 if uc == -1 {
-                    return -1
+                    return r_UNSAT;
                 } else if uc > 0 {
                     cell.content = uc;
-                    return 1
+                    return r_UPDATED;
                 }
             }
         }
     };
-    return 0
+    return r_UNCHANGED
 }
 
 // For each row, column and sector, look for a number which can only be set at one position, and set it
 // Exit as soon as one such number is found and set
 // Return code:
-//   -1: there is a number in some sector such that no position can accept it
-//   0: no number was set
-//   2: one such number has been found and set
+//   r_UNSAT: there is a number in some sector such that no position can accept it
+//   r_UNCHANGED: no number was set
+//   r_UPDATED: one such number has been found and set
 fn inferOneNumberWithUniquePos(grid: Grid) -> Int {
     for var i = 0; i < grid.size; i += 1 {
         for var candidate = 1; candidate <= grid.size; candidate += 1 {
             val ret = placeInRow(grid, i, candidate);
-            if ret == -1 || ret == 2 {
+            if ret == r_UNSAT || ret == r_UPDATED {
                 return ret
             }
         }
@@ -98,7 +102,7 @@ fn inferOneNumberWithUniquePos(grid: Grid) -> Int {
     for var i = 0; i < grid.size; i += 1 {
         for var candidate = 1; candidate <= grid.size; candidate += 1 {
             val ret = placeInCol(grid, i, candidate);
-            if ret == -1 || ret == 2 {
+            if ret == r_UNSAT || ret == r_UPDATED {
                 return ret
             }
         }
@@ -108,64 +112,66 @@ fn inferOneNumberWithUniquePos(grid: Grid) -> Int {
         for var sc = 0; sc < sectorSize; sc += 1 {
             for var candidate = 1; candidate <= grid.size; candidate += 1 {
                 val ret = placeInSector(grid, sr, sc, candidate);
-                if ret == -1 || ret == 2 {
+                if ret == r_UNSAT || ret == r_UPDATED {
                     return ret
                 }
             }
         }
     };
-    return 0;
+    return r_UNCHANGED;
 }
 
 // Iterates the assigned row until one of the following happens:
-//  - It finds a cell which already contains numberToPlace -> return 0
-//  - It finds more than one cell which have numberToPlace as a candidate -> return 1
-//  - It has iterated the whole row and not found any cell which has numberToPlace as a candidate -> return -1
+//  - It finds a cell which already contains numberToPlace -> return r_UNCHANGED
+//  - It finds more than one cell which have numberToPlace as a candidate -> return r_UNCHANGED
+//  - It has iterated the whole row and not found any cell which has numberToPlace as a candidate -> return r_UNSAT
 //  - It has iterated the whole row and found exactly one cell which has numberToPlace as a candidate
-//          -> assign numberToPlace to this cell and return 2
+//          -> assign numberToPlace to this cell and return r_UPDATED
 fn placeInRow(grid: Grid, rowIdx: Int, numberToPlace: Int) -> Int {
     val row = grid.cells[rowIdx];
-    var possIdx = -1;
+    val c_NO_POS_IDX = -1;
+    var possIdx = c_NO_POS_IDX;
     for var i = 0; i < grid.size; i += 1 {
         val currCell = row[i];
-        if currCell.content == 0 && hasCandidate(currCell, numberToPlace){
-            if possIdx == -1 {
+        if currCell.content == c_EMPTY_CELL && hasCandidate(currCell, numberToPlace){
+            if possIdx == c_NO_POS_IDX {
                 possIdx = i;
             } else {
-                return 1
+                return r_UNCHANGED;
             }
         } else if currCell.content == numberToPlace {
-            return 0
+            return r_UNCHANGED;
         }
     };
-    if possIdx == -1 {
-        return -1;
+    if possIdx == c_NO_POS_IDX {
+        return r_UNSAT;
     } else {
         row[possIdx].content = numberToPlace;
-        return 2;
+        return r_UPDATED;
     }
 }
 
 // Analogous to placeInRow
 fn placeInCol(grid: Grid, colIdx: Int, numberToPlace: Int) -> Int {
-    var possIdx = -1;
+    val c_NO_POS_IDX = -1;
+    var possIdx = c_NO_POS_IDX;
     for var i = 0; i < grid.size; i += 1 {
         val currCell = grid.cells[i][colIdx];
-        if currCell.content == 0 && hasCandidate(currCell, numberToPlace){
-            if possIdx == -1 {
+        if currCell.content == c_EMPTY_CELL && hasCandidate(currCell, numberToPlace){
+            if possIdx == c_NO_POS_IDX {
                 possIdx = i;
             } else {
-                return 1
+                return r_UNCHANGED;
             }
         } else if currCell.content == numberToPlace {
-            return 0
+            return r_UNCHANGED;
         }
     };
-    if possIdx == -1 {
-        return -1;
+    if possIdx == c_NO_POS_IDX {
+        return r_UNSAT;
     } else {
         grid.cells[possIdx][colIdx].content = numberToPlace;
-        return 2;
+        return r_UPDATED;
     }
 }
 
@@ -174,30 +180,31 @@ fn placeInSector(grid: Grid, sectorRowIdx: Int, sectorColIdx: Int, numberToPlace
     val sectorSize = sqrt(grid.size);
     require(0 <= sectorRowIdx && sectorRowIdx < sectorSize, "sector row out of bounds");
     require(0 <= sectorColIdx && sectorColIdx < sectorSize, "sector column out of bounds");
-    var possRow = -1;
-    var possCol = -1;
+    val c_NO_POS_IDX = -1;
+    var possRow = c_NO_POS_IDX;
+    var possCol = c_NO_POS_IDX;
     val minSectorRow = sectorRowIdx * sectorSize;
     val minSectorCol = sectorColIdx * sectorSize;
     for var r = minSectorRow; r < minSectorRow + sectorSize; r += 1 {
         for var c = minSectorCol; c < minSectorCol + sectorSize; c += 1 {
             val currCell = grid.cells[r][c];
-            if currCell.content == 0 && hasCandidate(currCell, numberToPlace){
-                if possRow == -1 {
+            if currCell.content == c_EMPTY_CELL && hasCandidate(currCell, numberToPlace){
+                if possRow == c_NO_POS_IDX {
                     possRow = r;
                     possCol = c;
                 } else {
-                    return 1
+                    return r_UNCHANGED;
                 }
             } else if currCell.content == numberToPlace {
-                return 0
+                return r_UNCHANGED;
             }
         }
     };
-    if possRow == -1 {
-        return -1;
+    if possRow == c_NO_POS_IDX {
+        return r_UNSAT;
     } else {
         grid.cells[possRow][possCol].content = numberToPlace;
-        return 2;
+        return r_UPDATED;
     }
 }
 
@@ -216,7 +223,7 @@ fn nullifyCandidatesInRow(grid: Grid, row: Int, col: Int) -> Bool {
     for var i = 0; i < grid.size; i += 1 {
         if i != col {
             val candidateToNullify = grid.cells[row][i].content;
-            if candidateToNullify != 0 {
+            if candidateToNullify != c_EMPTY_CELL {
                 modified = nullifyCandidate(cell.candidates, candidateToNullify) || modified;
             }
         }
@@ -230,7 +237,7 @@ fn nullifyCandidatesInCol(grid: Grid, row: Int, col: Int) -> Bool {
     for var i = 0; i < grid.size; i += 1 {
         if i != row {
             val candidateToNullify = grid.cells[i][col].content;
-            if candidateToNullify != 0 {
+            if candidateToNullify != c_EMPTY_CELL {
                 modified = nullifyCandidate(cell.candidates, candidateToNullify) || modified;
             }
         }
@@ -248,7 +255,7 @@ fn nullifyCandidatesInSector(grid: Grid, row: Int, col: Int) -> Bool {
         for var c = minCol; c < minCol + sectorSize; c += 1 {
             if !(r == row && c == col){
                 val candidateToNullify = grid.cells[r][c].content;
-                if candidateToNullify != 0 {
+                if candidateToNullify != c_EMPTY_CELL {
                     modified = nullifyCandidate(cell.candidates, candidateToNullify) || modified;
                 }
             }
@@ -293,7 +300,7 @@ fn cellWithLeastCandidates(grid: Grid) -> CellPos {
     for var r = 0; r < grid.size; r += 1 {
         for var c = 0; c < grid.size; c += 1 {
             val currCell = grid.cells[r][c];
-            if currCell.content == 0 {
+            if currCell.content == c_EMPTY_CELL {
                 val currNumCandidates = numCandidates(currCell.candidates);
                 if currNumCandidates < bestNumCandidates {
                     bestCellPos = new CellPos { r, c };
