@@ -13,6 +13,9 @@
         "(\\bvar\\b)": [
             {"color": "lightskyblue"}
         ],
+        "(\\bconst\\b)": [
+            {"color": "lightskyblue"}
+        ],
         "(\\bif\\b)": [
             {"color": "lightskyblue"}
         ],
