@@ -16,6 +16,9 @@
         "(\\bconst\\b)": [
             {"color": "lightskyblue"}
         ],
+        "(\\bmut\\b)": [
+            {"color": "lightskyblue"}
+        ],
         "(\\bif\\b)": [
             {"color": "lightskyblue"}
         ],

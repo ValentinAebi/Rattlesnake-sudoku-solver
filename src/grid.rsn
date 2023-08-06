@@ -2,16 +2,16 @@
 const c_EMPTY_CELL = 0;
 
 struct Cell {
-  content: Int,
-  candidates: arr Int
+  var content: Int,
+  candidates: mut arr Int
 }
 
 // Deep copy of a cell
-fn copyCell(cell: Cell) -> Cell {
-  return new Cell { cell.content, copyArray(cell.candidates) }
+fn copyCell(cell: Cell) -> mut Cell {
+  return new mut Cell { cell.content, copyArray(cell.candidates) }
 }
 
-fn copyCellInto(origin: Cell, dest: Cell){
+fn copyCellInto(origin: Cell, dest: mut Cell){
   require(#origin.candidates == #dest.candidates, "cell candidates counts differ");
   dest.content = origin.content;
   copyArrayInto(origin.candidates, dest.candidates);
@@ -32,19 +32,19 @@ fn coordsNonNeg(pos: CellPos) -> Bool {
 
 struct Grid {
   size: Int,
-  cells: arr arr Cell
+  cells: arr arr mut Cell
 }
 
-fn cellAt(grid: Grid, pos: CellPos) -> Cell {
+fn cellAt(grid: Grid, pos: CellPos) -> mut Cell {
   return grid.cells[pos.row][pos.col];
 }
 
 // Deep copy of a grid
 fn copyGrid(grid: Grid) -> Grid {
   checkGridFormat(grid);
-  val newCellsArray = arr arr Cell[grid.size];
+  val newCellsArray = arr mut arr mut Cell[grid.size];
   for var i = 0; i < grid.size; i += 1 {
-    val newRow = arr Cell[grid.size];
+    val newRow = arr mut Cell[grid.size];
     val oldRow = grid.cells[i];
     for var j = 0; j < grid.size; j += 1 {
       newRow[j] = copyCell(oldRow[j]);
@@ -84,13 +84,13 @@ fn gridToString(grid: Grid) -> String {
 
 fn gridFromIntArray(cellsValues: arr arr Int) -> Grid {
   val size = #cellsValues;
-  val cells = arr arr Cell[size];
+  val cells = arr mut arr mut Cell[size];
   val grid = new Grid { size, cells };
   for var r = 0; r < size; r += 1 {
     require(#cellsValues[r] == size, "given array is not square");
-    cells[r] = arr Cell[size];
+    cells[r] = arr mut Cell[size];
     for var c = 0; c < size; c += 1 {
-      cells[r][c] = new Cell { cellsValues[r][c], rangeArray(1, size) };
+      cells[r][c] = new mut Cell { cellsValues[r][c], rangeArray(1, size) };
     }
   };
   return grid
@@ -105,18 +105,6 @@ fn isComplete(grid: Grid) -> Bool {
     }
   };
   return true
-}
-
-fn emptyCellsCnt(grid: Grid) -> Int {
-  var cnt = 0;
-  for var r = 0; r < grid.size; r += 1 {
-    for var c = 0; c < grid.size; c += 1 {
-      if grid.cells[r][c].content == c_EMPTY_CELL {
-        cnt += 1
-      }
-    }
-  };
-  return cnt
 }
 
 // Panics if the grid is malformed

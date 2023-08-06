@@ -1,12 +1,12 @@
 
 // Returns a copy of the given integer array
-fn copyArray(array: arr Int) -> arr Int {
+fn copyArray(array: arr Int) -> mut arr Int {
     val newArray = arr Int[#array];
     copyArrayInto(array, newArray);
     return newArray;
 }
 
-fn copyArrayInto(origin: arr Int, dest: arr Int){
+fn copyArrayInto(origin: arr Int, dest: mut arr Int){
     require(#origin == #dest, "array sizes differ");
     for var i = 0; i < #origin; i += 1 {
         dest[i] = origin[i];
@@ -37,7 +37,7 @@ fn isPerfectSquare(i: Int) -> Bool {
 
 // Returns an array containing the numbers in the requested range
 // e.g. rangeArray(10, 14) == [10, 11, 12, 13, 14]
-fn rangeArray(from: Int, to: Int) -> arr Int {
+fn rangeArray(from: Int, to: Int) -> mut arr Int {
     val res = arr Int[to-from+1];
     for var i = from; i <= to; i += 1 {
         res[i-from] = i;

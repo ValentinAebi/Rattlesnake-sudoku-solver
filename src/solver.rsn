@@ -29,7 +29,6 @@ const r_UPDATED = -8;
 // or at least 1 region has no possible position for some number,
 // true otherwise
 fn inferenceSolve(grid: Grid) -> Bool {
-    val initEmptiesCnt = emptyCellsCnt(grid);
     while true {
         nullifyImpossibleCandidates(grid);
         val uniquePosInferRet = inferOneNumberWithUniquePos(grid);
@@ -265,7 +264,7 @@ fn nullifyCandidatesInSector(grid: Grid, row: Int, col: Int) -> Bool {
 }
 
 // Replaces all occurrences of candidateToNullify in candidates with 0
-fn nullifyCandidate(candidates: arr Int, candidateToNullify: Int) -> Bool {
+fn nullifyCandidate(candidates: mut arr Int, candidateToNullify: Int) -> Bool {
     require(candidateToNullify > 0, "candidate to nullify must be positive, was " + intToString(candidateToNullify));
     var modified = false;
     for var i = 0; i < #candidates; i += 1 {

@@ -1,5 +1,5 @@
 
-fn main(args: arr String){
+fn main(arr String){
 
     val a = 10;
     val b = 11;

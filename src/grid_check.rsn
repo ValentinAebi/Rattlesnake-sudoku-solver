@@ -1,7 +1,7 @@
 
 struct ErrorLog {
-    text: String,
-    errorFound: Bool
+    var text: String,
+    var errorFound: Bool
 }
 
 fn logToString(log: ErrorLog) -> String {
@@ -12,13 +12,13 @@ fn logToString(log: ErrorLog) -> String {
     }
 }
 
-fn writeError(log: ErrorLog, msg: String){
+fn writeError(log: mut ErrorLog, msg: String){
     log.text += msg + "\n";
     log.errorFound = true;
 }
 
 fn checkGrid(grid: Grid) -> ErrorLog {
-    val log = new ErrorLog { "", false };
+    val log = new mut ErrorLog { "", false };
     for var i = 0; i < grid.size; i += 1 {
         checkRow(grid, i, log);
     };
@@ -34,7 +34,7 @@ fn checkGrid(grid: Grid) -> ErrorLog {
     return log
 }
 
-fn checkRow(grid: Grid, rowIdx: Int, log: ErrorLog){
+fn checkRow(grid: Grid, rowIdx: Int, log: mut ErrorLog){
     val found = arr Bool[grid.size];
     val row = grid.cells[rowIdx];
     for var i = 0; i < grid.size; i += 1 {
@@ -49,7 +49,7 @@ fn checkRow(grid: Grid, rowIdx: Int, log: ErrorLog){
     };
 }
 
-fn checkCol(grid: Grid, colIdx: Int, log: ErrorLog){
+fn checkCol(grid: Grid, colIdx: Int, log: mut ErrorLog){
     val found = arr Bool[grid.size];
     for var i = 0; i < grid.size; i += 1 {
         val currVal = grid.cells[i][colIdx].content;
@@ -63,7 +63,7 @@ fn checkCol(grid: Grid, colIdx: Int, log: ErrorLog){
     };
 }
 
-fn checkSector(grid: Grid, sectorRowIdx: Int, sectorColIdx: Int, log: ErrorLog){
+fn checkSector(grid: Grid, sectorRowIdx: Int, sectorColIdx: Int, log: mut ErrorLog){
     val sectorSize = sqrt(grid.size);
     val found = arr Bool[grid.size];
     val minRow = sectorRowIdx * sectorSize;
