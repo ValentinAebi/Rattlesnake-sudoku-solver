@@ -3,3 +3,6 @@ all:
 
 test:
 	python run.py test
+
+typecheck:
+	python run.py typecheck
